@@ -30,11 +30,17 @@ The direction input is represented by a number. <br />
 7 = bottom right <br />
 8 = bottom left <br />
 
-## Running Program
+## Running the Program
 The only two files that need to be made for the code to run are the LocationInfo.txt and the States.txt. The user can then run <br />
 ```
 python -m Parser
 python -m Project
 ```
+
 ## Understanding the Code
-Once everything is converted to a 1000 x 1000 grid using the Parser.py file 
+Once everything is converted to a 1000 x 1000 grid using the Parser.py file, the Project.py file will go through the ParsedStates file and create 2 lists of the locations and actions from each location to iterate through. It will use these two lists to determine the probability of being at that state and taking that action in the probability function. The probability function also takes a beta value which is the confidence variable representing the confidence that the person is taking a logical action. Currently the beta value 0.1 (which can be changed) because the human might make an illogical action with the information given. This code only knows the 1000 x 1000 empty grid and can't detect buildings. The probability function takes in a state, given action, and goal/theta/destination and determines the probability of taking that action relative to all other actions. The numerator is $e^{βq(θ, s, a)}$ and is normalized using the summation of all actions $$e^{βq(θ, s, a)} / \left( \sum_{a=0}^8 e^{βq(θ, s, a)} \right)$$
+<!-- $$ \sum_{a=0}^8 e^{βq(θ, s, a)}$$ -->
+<!-- Test equation $$\[ \frac{e^{βq(θ, s, a)}}{\left( \sum_{a=0}^8 e^{βq(θ, s, a)} \right)} \]$$ -->
+
+## Things that can be Improved
+One of the biggest things that could be improved is the directions from a state not making sense. Because this is a ruimentary guesser it can't understand the road existing and obstacles like buildings being in the way. Therefore the correct action from a state might be to walk away from the destination to get on the road or walk to a bus stop, but using the current qfunction it can't understand the logic of doing that.
