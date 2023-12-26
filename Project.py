@@ -41,7 +41,9 @@ while state != "":
 	count += 1
 	state = statesFile.readline()
 
+print("States: ")
 print(states)
+print("Actions: ")
 print(correspondingActions)
 
 # declares the list of potential destinations
@@ -94,17 +96,30 @@ def qFunction(theta, s, a):
 # actions = the list of possible actions
 def probability(theta, s, a, beta, actions):
 	sum = 0
+	# Creates the denominator the summation of all probabilities to normalize
 	for action in actions:
 		sum += math.exp(beta * qFunction(theta, s, actions[action]))
+	# unnormalized probability
 	numerator = math.exp(beta * qFunction(theta, s, a))
 	return numerator * 1.0 / sum
 
+# Calculates the compound probability of all the states and actions occuring
+# theta = destination
+# states = all states provided
+# corrAction = list of corresponding actions to the states provided
+# beta = confidence provided actions are logical
+# actions = the list of possible actions
 def compoundedProb(theta, states, corrAction, beta, actions):
 	returnVal = 1
 	for state in states:
-		returnVal *= probability(theta, states[state], corrAction[state], beta, actions)
+		returnVal *= probability(theta, states[state], corrAction[state], 
+			beta, actions)
 	return returnVal
 
+# Declares the list of probabilities and sums of the probabilities that will be
+# used to normalize. The different proability lists are for different priors: 
+# uniform priors, priors guessed by the user, and the true prior calculated
+# from the number of times visited
 probUniThetas = {}
 probGuessedThetas = {}
 probVisitThetas = {}
@@ -112,37 +127,32 @@ pUniSum = 0
 pGuessedSum = 0
 pVisitSum = 0
 
+# Creates a list of the different probabilities for each possible desitination.
+# In order to normalize the probabilities the sum of the probability is also 
+# calculated
 for theta in thetas:
+	print("All Possible Destinations:")
 	print(thetas[theta])
-	probUniThetas[theta] = compoundedProb(thetas[theta], states, correspondingActions, beta, actions)
+	# Calculating for uniform priors
+	probUniThetas[theta] = compoundedProb(thetas[theta], states, 
+		correspondingActions, beta, actions)
 	pUniSum += probUniThetas[theta]
-	# probGuessedThetas[theta] = guessedPrior[theta] * Decimal(compoundedProb(thetas[theta], states, correspondingActions, beta, actions))
-	# pGuessedSum += probGuessedThetas[theta]
-	# probVisitThetas[theta] = visitPrior[theta] * Decimal(compoundedProb(thetas[theta], states, correspondingActions, beta, actions))
-	# pVisitSum += probVisitThetas[theta]
-	probGuessedThetas[theta] = float(guessedPrior[theta]) * compoundedProb(thetas[theta], states, correspondingActions, beta, actions)
+	# Calculating for user guessed priors
+	probGuessedThetas[theta] = (float(guessedPrior[theta]) * 
+		compoundedProb(thetas[theta], states, correspondingActions, 
+			beta, actions))
 	pGuessedSum += probGuessedThetas[theta]
-	probVisitThetas[theta] = float(visitPrior[theta]) * compoundedProb(thetas[theta], states, correspondingActions, beta, actions)
+	# Calculating for true prior based off of number of visits
+	probVisitThetas[theta] = (float(visitPrior[theta]) * 
+		compoundedProb(thetas[theta], states, correspondingActions, 
+			beta, actions))
 	pVisitSum += probVisitThetas[theta]
 
-# print(probThetas)
-# print(pSum)
-
+# Normalizes the probabilities
 for theta in probUniThetas:
 	probUniThetas[theta] = probUniThetas[theta] / pUniSum
 	probGuessedThetas[theta] = probGuessedThetas[theta] / pGuessedSum
 	probVisitThetas[theta] = probVisitThetas[theta] / pVisitSum
-
-# sumProb = 0
-# for theta in probVisitThetas:
-# 	sumProb += probVisitThetas[theta]
-
-# print("Uniform Priors")
-# print(probUniThetas)
-# print("\nGuessed Priors")
-# print(probGuessedThetas)
-# print("\nVisited Priors")
-# print(probVisitThetas)
 
 print("Uniform Priors: Probability of Goal in Percentage")
 for theta in probUniThetas:
@@ -153,9 +163,6 @@ for theta in probGuessedThetas:
 print("\nVisited Priors: Probability of Goal in Percentage")
 for theta in probVisitThetas:
 	print(str(theta) + ": " + str(probVisitThetas[theta] * 100))
-
-
-# print(sumProb)
 
 statesFile.close()
 parsedFile.close()
