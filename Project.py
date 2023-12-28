@@ -79,7 +79,7 @@ while location != "":
 	count += 1 
 	location = parsedFile.readline()
 
-# This function returns the frobenius norm of the vector calculated from the
+# This function returns the Manhattan norm of the vector calculated from the
 # goal - the (state + action)
 # theta = destination
 # s = state provided
